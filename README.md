@@ -49,6 +49,7 @@
 ```
 nebula-shop-bot/
 ├── main.py                  # точка входа, сборка Dispatcher
+├── run.bat / run.sh         # запуск в один клик (сам ставит зависимости)
 ├── requirements.txt
 ├── pyproject.toml           # настройки ruff
 ├── .env.example
@@ -97,6 +98,12 @@ nebula-shop-bot/
 ```
 
 ## Запуск
+
+Самый простой способ: двойной клик по **`run.bat`** (Windows) или `./run.sh`
+(macOS/Linux) — скрипт сам создаст окружение, установит зависимости, попросит
+вставить токен и запустит бота.
+
+Вручную:
 
 ```powershell
 python -m venv .venv
