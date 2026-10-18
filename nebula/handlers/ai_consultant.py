@@ -26,7 +26,7 @@ async def ai_start(call: CallbackQuery, state: FSMContext) -> None:
     text = (
         "✨ <b>ИИ-консультант Nebula</b>\n\n"
         "Напиши, что нужно, — посмотрю, что есть в каталоге.\n\n"
-        "Можно писать как есть: «подарок девушке до 5000» или «наушники с басом»."
+        "Можно писать как есть: «наушники с басом» или «что взять в поездку»."
     )
     await render_screen(call.message, text, ai_chat_kb())
     await call.answer()

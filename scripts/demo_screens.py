@@ -116,9 +116,7 @@ async def send(screen: str, chat_id: int) -> None:
                 chat_id, text, reply_markup=checkout_kb(subtotal, bonus >= subtotal)
             )
         elif screen == "ai":
-            answer, product = await consult(
-                session, "Хочу подарок девушке до 5000, что-нибудь стильное"
-            )
+            answer, product = await consult(session, "Хочу наушники с хорошим басом")
             index = None
             if product:
                 products = list(

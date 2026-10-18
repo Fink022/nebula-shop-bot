@@ -54,6 +54,7 @@ const state = {
   spent: 0,
   promo: null,
   promoDiscount: 0,
+  starsRate: 1,
   activeCategory: "all",
   sheetProductId: null,
 };
@@ -123,7 +124,6 @@ async function api(path, options = {}) {
   return data;
 }
 
-/* ---------- rendering ---------- */
 
 function renderSkeletons() {
   $("productGrid").innerHTML = Array.from({ length: 6 })
@@ -158,7 +158,7 @@ function renderCatalog() {
   const products = visibleProducts();
   if (!products.length) {
     $("productGrid").innerHTML =
-      `<div class="empty" style="grid-column:1/-1"><div class="big">🌌</div><p>Здесь пока пусто</p></div>`;
+      `<div class="empty" style="grid-column:1/-1"><div class="big">🌌</div><p>Пока пусто</p></div>`;
     return;
   }
   $("productGrid").innerHTML = products
@@ -193,7 +193,7 @@ function renderCart() {
   const list = $("cartList");
   if (!state.cart.length) {
     list.innerHTML =
-      `<div class="empty"><div class="big">🛒</div><p>В корзине ничего нет</p></div>`;
+      `<div class="empty"><div class="big">🛒</div><p>Корзина пуста</p></div>`;
     $("cartTotals").hidden = true;
     $("promoRow").hidden = true;
     $("clearCart").hidden = true;
@@ -284,6 +284,7 @@ function renderProfile() {
 function applyState(data) {
   state.user = data.user;
   state.botUsername = data.bot_username || "";
+  state.starsRate = data.stars_rate || 1;
   state.cart = data.cart;
   state.orders = data.orders;
   state.ordersCount = data.orders_count ?? data.orders.length;
@@ -307,7 +308,6 @@ function applyState(data) {
   updateBadge();
 }
 
-/* ---------- actions ---------- */
 
 async function refreshState() {
   const data = await api("/api/state");
@@ -408,7 +408,6 @@ async function applyPromo() {
   }
 }
 
-/* ---------- sheets ---------- */
 
 function openSheet(id) {
   clearTimeout(backdropTimer);
@@ -449,8 +448,10 @@ function openPaySheet() {
   if (!state.cart.length) return;
   const total = cartTotal();
   const bonus = state.user ? state.user.bonus : 0;
+  const stars = Math.max(1, Math.round(total * state.starsRate));
+  const rateNote = state.starsRate === 1 ? "1:1" : `курс ${state.starsRate}`;
 
-  $("payStars").textContent = `Спишется ${total} ⭐ (курс 1:1)`;
+  $("payStars").textContent = `Спишется ${stars} ⭐ (${rateNote})`;
   const bonusBtn = document.querySelector('[data-method="bonus"]');
   if (bonus >= total) {
     $("payBonus").textContent = `Доступно ${bonus.toLocaleString("ru-RU")} 💠`;
@@ -493,7 +494,6 @@ async function pay(method) {
   }
 }
 
-/* ---------- navigation ---------- */
 
 function setTab(tab) {
   if (!["catalog", "cart", "profile"].includes(tab)) tab = "catalog";
@@ -512,13 +512,12 @@ async function copyRef() {
   try {
     await navigator.clipboard.writeText(link);
     haptic();
-    toast("Ссылка скопирована ✨");
+    toast("Скопировано");
   } catch (error) {
     toast("Не удалось скопировать", true);
   }
 }
 
-/* ---------- init ---------- */
 
 function bindEvents() {
   document.querySelectorAll(".tab").forEach((btn) => {

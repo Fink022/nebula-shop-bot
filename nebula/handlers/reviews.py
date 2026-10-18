@@ -45,6 +45,9 @@ async def ask_rating(call: CallbackQuery, session: AsyncSession) -> None:
     if not order or order.user_id != call.from_user.id:
         await call.answer("Это не твой заказ 🙂", show_alert=True)
         return
+    if order.status != "delivered":
+        await call.answer("Отзыв можно оставить после получения заказа", show_alert=True)
+        return
     if await _already_reviewed(session, call.from_user.id, order.id):
         await call.answer("Ты уже оценил этот заказ — спасибо!", show_alert=True)
         return
@@ -62,6 +65,9 @@ async def save_rating(call: CallbackQuery, session: AsyncSession, state: FSMCont
     order = await session.get(Order, int(order_id))
     if not order or order.user_id != call.from_user.id:
         await call.answer("Это не твой заказ 🙂", show_alert=True)
+        return
+    if order.status != "delivered":
+        await call.answer("Отзыв можно оставить после получения заказа", show_alert=True)
         return
     if await _already_reviewed(session, call.from_user.id, order.id):
         await call.answer("Ты уже оценил этот заказ — спасибо!", show_alert=True)

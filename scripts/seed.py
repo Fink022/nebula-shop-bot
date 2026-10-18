@@ -29,51 +29,42 @@ async def seed() -> None:
                 Product(
                     category_id=gadgets.id,
                     title="Nebula Watch S2",
-                    description=(
-                        "AMOLED-экран, пульсометр, GPS. Держат заряд до двух недель, "
-                        "на руке почти не чувствуются."
-                    ),
+                    description="AMOLED, пульсометр, GPS, шагомер. До 14 дней автономности, 5 ATM.",
                     price=4990,
                     photo="assets/products/p0.png",
                 ),
                 Product(
                     category_id=audio.id,
                     title="AirPods Nebula Pro",
-                    description="Активный шумодав и плотный бас. Кейс держит заряд до 30 часов.",
+                    description="Активный шумодав, плотный бас, до 30 часов с кейсом. Зарядка беспроводная.",
                     price=7490,
                     photo="assets/products/p1.png",
                 ),
                 Product(
                     category_id=projectors.id,
                     title="Nebula Beam Mini",
-                    description=(
-                        "Кинотеатр 120 дюймов на любой стене: Wi-Fi, автофокус, HDMI. "
-                        "От аккумулятора — около трёх часов."
-                    ),
+                    description="1080p, картинка до 120 дюймов, Wi-Fi, HDMI, автофокус. Три часа от аккумулятора.",
                     price=15990,
                     photo="assets/products/p2.png",
                 ),
                 Product(
                     category_id=audio.id,
                     title="Nebula Sound 360",
-                    description="Звук 360°, защита IPX7, подсветка. Играет громко, дождя не боится.",
+                    description="30 Вт, звук 360°, IPX7. Подсветка мигает под музыку.",
                     price=3990,
                     photo="assets/products/p3.png",
                 ),
                 Product(
                     category_id=accessories.id,
                     title="Nebula Charge 20K",
-                    description="20 000 мАч, быстрая зарядка 65 Вт, дисплей. Ноутбук тоже тянет.",
+                    description="20 000 мАч и 65 Вт — хватает на два дня поездки, ноутбук тоже зарядит.",
                     price=2990,
                     photo="assets/products/p4.png",
                 ),
                 Product(
                     category_id=accessories.id,
                     title="Nebula Keys RGB",
-                    description=(
-                        "Механика, RGB, hot-swap, Bluetooth и 2.4G. Печатать удобно, "
-                        "но подсветку на ночь лучше выключать."
-                    ),
+                    description="Механика, hot-swap, Bluetooth и 2.4 ГГц. Красные свитчи, ход тихий — соседи не проснутся.",
                     price=5990,
                     photo="assets/products/p5.png",
                 ),

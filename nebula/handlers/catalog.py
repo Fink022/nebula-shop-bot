@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from nebula.db.models import CartItem, Category, Product
 from nebula.filters import IsPrivate
 from nebula.keyboards import categories_kb, product_kb
-from nebula.utils import photo_source, product_caption, render_screen
+from nebula.utils import get_or_create_user, photo_source, product_caption, render_screen
 
 router = Router()
 router.callback_query.filter(IsPrivate())
@@ -31,7 +31,7 @@ async def show_product(call: CallbackQuery, session: AsyncSession, state: FSMCon
     products = list((await session.scalars(query)).all())
 
     if not products:
-        await call.answer("В этой категории пока пусто 🙈", show_alert=True)
+        await call.answer("Пока пусто 🙈", show_alert=True)
         return
 
     idx = max(0, min(idx, len(products) - 1))
@@ -67,6 +67,7 @@ async def add_to_cart(call: CallbackQuery, session: AsyncSession, state: FSMCont
         await call.answer("Товар недоступен 😔", show_alert=True)
         return
 
+    await get_or_create_user(session, call.from_user)
     stmt = (
         sqlite_insert(CartItem)
         .values(user_id=call.from_user.id, product_id=product_id, qty=1)

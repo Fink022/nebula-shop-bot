@@ -14,13 +14,13 @@ if [ -z "$PYTHON" ]; then
 fi
 
 if [ ! -d ".venv" ]; then
-    echo "[1/4] Создаю виртуальное окружение..."
+    echo "[1/4] Готовлю окружение..."
     "$PYTHON" -m venv .venv
 else
     echo "[1/4] Виртуальное окружение уже есть."
 fi
 
-echo "[2/4] Устанавливаю зависимости..."
+echo "[2/4] Ставлю зависимости..."
 .venv/bin/python -m pip install --quiet --upgrade pip
 .venv/bin/python -m pip install --quiet -r requirements.txt
 
@@ -30,13 +30,13 @@ fi
 
 while ! grep -qE "^BOT_TOKEN=..+" .env; do
     echo
-    echo "[3/4] Открой .env и вставь BOT_TOKEN от @BotFather и ADMIN_IDS (@userinfobot)."
+    echo "[3/4] Открой .env, вставь BOT_TOKEN (от @BotFather) и ADMIN_IDS (@userinfobot)."
     read -r -p "Нажми Enter, когда сохранишь файл..."
 done
 echo "[3/4] Токен на месте."
 
 if [ ! -f "nebula.db" ]; then
-    echo "[4/4] Заполняю каталог демо-данными..."
+    echo "[4/4] Наполняю каталог демо-товарами..."
     .venv/bin/python scripts/seed.py
 else
     echo "[4/4] База уже создана."

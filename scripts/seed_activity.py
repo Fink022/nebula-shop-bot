@@ -99,7 +99,7 @@ async def seed_activity(user_id: int) -> None:
                     product_id=watch.id,
                     order_id=first.id,
                     rating=5,
-                    text="Часы нормальные: экран яркий, неделю держат. Ремешок жёсткий, но привык.",
+                    text="заказал вечером, утром уже всё было. часы классные, неделю точно держат",
                     created_at=now - timedelta(days=5),
                 ),
                 Review(
@@ -107,7 +107,7 @@ async def seed_activity(user_id: int) -> None:
                     product_id=buds.id,
                     order_id=second.id,
                     rating=4,
-                    text="Наушники брал на распродаже. Бас есть, кейс быстро царапается, но в целом доволен.",
+                    text="Наушники норм, бас на месте. Шумодав средний, за эти деньги ок. Кейс поцарапался за неделю",
                     created_at=now - timedelta(days=1),
                 ),
             ]

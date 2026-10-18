@@ -26,9 +26,11 @@ if engine.dialect.name == "sqlite":
 
     @event.listens_for(engine.sync_engine, "connect")
     def _set_sqlite_pragmas(dbapi_connection, _connection_record) -> None:
+        # WAL + busy_timeout: бот и Mini App пишут в одну базу параллельно
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA journal_mode=WAL")
         cursor.execute("PRAGMA busy_timeout=5000")
+        cursor.execute("PRAGMA foreign_keys=ON")
         cursor.close()
 
 

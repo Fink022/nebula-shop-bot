@@ -29,6 +29,7 @@ PAYMENT_RU = {
 
 
 def user_lock(user_id: int) -> asyncio.Lock:
+    # блокировка на пользователя: защищает от двойных тапов по кнопкам оплаты
     lock = USER_LOCKS.get(user_id)
     if lock is None:
         lock = asyncio.Lock()

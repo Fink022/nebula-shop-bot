@@ -9,10 +9,11 @@ from nebula.config import config
 
 logger = logging.getLogger(__name__)
 
-INIT_DATA_MAX_AGE = 24 * 60 * 60
+INIT_DATA_MAX_AGE = 60 * 60
 
 
 def parse_init_data(init_data: str) -> dict | None:
+    # подпись Telegram: HMAC-SHA256 по отсортированным полям, секрет — на токене бота
     if not init_data or not config.bot_token:
         return None
     try:

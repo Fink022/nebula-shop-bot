@@ -14,7 +14,7 @@ KEYWORD_GROUPS = {
     "клавиатура": ("клавиатур", "игр", "печат", "keys", "rgb"),
     "подарок": ("подар", "друг", "девушк", "парн", "день рожден"),
     "дом": ("дом", "умный дом", "колонк", "свет"),
-    "путешествие": ("путешеств", "поход", "дорога", "самолет", "отпуск"),
+    "путешествие": ("путешеств", "поход", "дорога", "самолет", "отпуск", "поездк"),
 }
 
 
@@ -36,16 +36,19 @@ def _offline_answer(products: list[Product], user_text: str) -> tuple[str, Produ
 
     if best_product is None:
         best_product = products[0] if products else None
+        prefix = "Точного совпадения не нашлось, но посмотри:"
+    else:
+        prefix = "Подобрал из каталога:"
 
     if best_product is None:
         return "Каталог пока пуст — загляни чуть позже! 🌌", None
 
     advantage = best_product.description.split(".")[0].strip() or best_product.title
     answer = (
-        "Смотри, что подходит под запрос:\n\n"
+        f"{prefix}\n\n"
         f"{best_product.title} — {fmt_price(best_product.price)}\n"
         f"{advantage}.\n\n"
-        "Открой карточку, там фото и кнопка «В корзину»."
+        "Карточка открывается кнопкой ниже."
     )
     return answer, best_product
 

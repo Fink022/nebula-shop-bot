@@ -145,6 +145,7 @@ async def state(request: web.Request) -> web.Response:
                 "invited": invited or 0,
             },
             "bot_username": config.bot_username,
+            "stars_rate": config.stars_rate,
             "cashback_percent": config.cashback_percent,
             "referral_bonus_inviter": config.referral_bonus_inviter,
             "referral_bonus_newbie": config.referral_bonus_newbie,
@@ -220,7 +221,7 @@ async def promo(request: web.Request) -> web.Response:
     if body is None:
         return _bad_request("Некорректный JSON")
     async with Session() as session:
-        found = await valid_promo(session, str(body.get("code", "")))
+        found = await valid_promo(session, str(body.get("code") or "").strip())
     return web.json_response(
         {"valid": found is not None, "discount": found.discount if found else 0}
     )
@@ -260,6 +261,7 @@ async def checkout(request: web.Request) -> web.Response:
                 session, user, rows, total, discount, promo_code, payment="stars", status="pending"
             )
             await session.commit()
+            stars = max(1, round(total * config.stars_rate))
             try:
                 invoice = await bot.send_invoice(
                     chat_id=user.id,
@@ -270,7 +272,7 @@ async def checkout(request: web.Request) -> web.Response:
                     payload=f"order:{order.id}",
                     provider_token="",
                     currency="XTR",
-                    prices=[LabeledPrice(label=f"Заказ #{order.id}", amount=max(1, total))],
+                    prices=[LabeledPrice(label=f"Заказ #{order.id}", amount=stars)],
                 )
             except Exception:
                 logger.exception("Не удалось выставить счёт для заказа %s", order.id)
@@ -283,7 +285,7 @@ async def checkout(request: web.Request) -> web.Response:
                 {
                     "ok": True,
                     "order_id": order.id,
-                    "message": f"Счёт на {total} ⭐ отправлен в чат с ботом",
+                    "message": f"Счёт на {stars} ⭐ отправлен в чат с ботом",
                 }
             )
 

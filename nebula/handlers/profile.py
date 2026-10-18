@@ -81,7 +81,7 @@ async def referral(call: CallbackQuery, session: AsyncSession, state: FSMContext
         "🎁 <b>Партнёрская программа</b>\n\n"
         f"Приглашай друзей и получай <b>{config.referral_bonus_inviter} бонусов</b> "
         "за каждого!\n"
-        f"А друг получит {config.referral_bonus_newbie} бонусов на первый заказ.\n\n"
+        f"Друг получит {config.referral_bonus_newbie} бонусов сразу при запуске бота.\n\n"
         f"Твоя ссылка:\n<code>{link}</code>\n\n"
         f"🤝 Уже приглашено: {invited}"
     )

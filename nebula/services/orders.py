@@ -2,7 +2,7 @@ import logging
 
 from aiogram import Bot
 from aiogram.types import InlineKeyboardMarkup
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from nebula.config import config
@@ -22,12 +22,16 @@ async def valid_promo(session: AsyncSession, code: str) -> PromoCode | None:
     return None
 
 
-async def consume_promo(session: AsyncSession, code: str) -> None:
+async def consume_promo(session: AsyncSession, code: str) -> bool:
     if not code:
-        return
-    promo = await session.scalar(select(PromoCode).where(PromoCode.code == code.upper()))
-    if promo:
-        promo.used += 1
+        return False
+    # атомарный инкремент: параллельные заказы не смогут превысить max_uses
+    result = await session.execute(
+        update(PromoCode)
+        .where(PromoCode.code == code.upper(), PromoCode.used < PromoCode.max_uses)
+        .values(used=PromoCode.used + 1)
+    )
+    return result.rowcount > 0
 
 
 async def create_order(
@@ -64,6 +68,7 @@ async def create_order(
 
 
 async def cancel_pending_orders(bot: Bot, session: AsyncSession, user_id: int) -> None:
+    # старые счета Stars отменяем, чтобы не висели в чате и не оплачивались дважды
     pending = list(
         (
             await session.scalars(

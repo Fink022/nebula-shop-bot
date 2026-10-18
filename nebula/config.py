@@ -30,6 +30,7 @@ class Config:
     referral_bonus_inviter: int = 100
     referral_bonus_newbie: int = 50
     cashback_percent: int = 3
+    stars_rate: float = float(os.getenv("STARS_RATE", "1"))
 
 
 config = Config()

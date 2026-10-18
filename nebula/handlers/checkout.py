@@ -5,6 +5,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, LabeledPrice, Message, PreCheckoutQuery
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from nebula.config import config
 from nebula.db.models import Order
 from nebula.filters import IsPrivate
 from nebula.keyboards import checkout_kb
@@ -58,9 +59,11 @@ async def checkout(call: CallbackQuery, session: AsyncSession, state: FSMContext
     )
     if discount:
         text += f"\n🎟 Скидка по промокоду: −{fmt_price(discount)}"
+    stars = max(1, round(total * config.stars_rate))
+    rate_note = "1:1" if config.stars_rate == 1 else f"курс {config.stars_rate:g}"
     text += (
         f"\n\n💰 <b>К оплате: {fmt_price(total)}</b>\n"
-        f"⭐ Можно оплатить звёздами: {max(1, total)} ⭐ (1:1)\n"
+        f"⭐ Можно оплатить звёздами: {stars} ⭐ ({rate_note})\n"
         f"💠 У тебя {user.bonus} бонусов"
     )
 
@@ -83,6 +86,7 @@ async def pay_stars(call: CallbackQuery, session: AsyncSession, state: FSMContex
         order = await create_order(
             session, user, rows, total, discount, promo, payment="stars", status="pending"
         )
+        stars = max(1, round(total * config.stars_rate))
         invoice = await call.bot.send_invoice(
             chat_id=user.id,
             title=f"Заказ #{order.id} · Nebula Shop",
@@ -90,7 +94,7 @@ async def pay_stars(call: CallbackQuery, session: AsyncSession, state: FSMContex
             payload=f"order:{order.id}",
             provider_token="",
             currency="XTR",
-            prices=[LabeledPrice(label=f"Заказ #{order.id}", amount=max(1, total))],
+            prices=[LabeledPrice(label=f"Заказ #{order.id}", amount=stars)],
         )
         order.invoice_message_id = invoice.message_id
     await call.answer("⭐ Счёт отправлен!")
@@ -119,15 +123,17 @@ async def paid(message: Message, session: AsyncSession, state: FSMContext) -> No
         order_id = int(message.successful_payment.invoice_payload.split(":")[1])
     except (ValueError, IndexError):
         return
-    order = await session.get(Order, order_id)
-    if not order or order.user_id != message.from_user.id:
-        logger.warning("Оплата по неизвестному заказу: %s", order_id)
-        await message.answer("⚠️ Платёж пришёл, но заказ не нашёлся. Напиши в этот чат ещё раз.")
-        return
-    if order.status == "delivered":
-        return
 
     async with user_lock(message.from_user.id):
+        # проверка под локом: Telegram может доставить апдейт об оплате дважды
+        order = await session.get(Order, order_id)
+        if not order or order.user_id != message.from_user.id:
+            logger.warning("Оплата по неизвестному заказу: %s", order_id)
+            await message.answer("⚠️ Платёж пришёл, но заказ не нашёлся. Напиши в этот чат ещё раз.")
+            return
+        if order.status == "delivered":
+            return
+
         user = await get_or_create_user(session, message.from_user)
         await consume_promo(session, order.promo)
         text, kb = await deliver_order(session, order, user)

@@ -41,7 +41,7 @@ async def render_cart(
     if not rows:
         await render_screen(
             message,
-            "🛒 <b>Корзина пустая</b>\n\nДобавь товар из каталога.",
+            "🛒 <b>Корзина пуста</b>\n\nДобавь товар из каталога.",
             empty_cart_kb(),
         )
         return
@@ -78,7 +78,7 @@ async def show_cart(call: CallbackQuery, session: AsyncSession, state: FSMContex
 async def increase(call: CallbackQuery, session: AsyncSession, state: FSMContext) -> None:
     item = await session.get(CartItem, int(call.data.split(":")[2]))
     if item and item.user_id == call.from_user.id:
-        item.qty += 1
+        item.qty = min(item.qty + 1, 99)
     await render_cart(call.message, session, state, call.from_user.id)
     await call.answer()
 

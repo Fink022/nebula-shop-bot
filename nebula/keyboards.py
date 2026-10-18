@@ -167,9 +167,11 @@ def admin_products_kb(products: list[Product]) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     for product in products:
         status = "🟢" if product.is_active else "⚪"
+        # в тексте кнопки лимит Telegram 64 символа — длинные названия обрезаем
+        title = product.title if len(product.title) <= 30 else product.title[:29] + "…"
         builder.row(
             InlineKeyboardButton(
-                text=f"{status} {product.title} · {product.price} ₽",
+                text=f"{status} {title} · {product.price} ₽",
                 callback_data=f"admin:toggle:{product.id}",
             ),
             InlineKeyboardButton(text="✏️ цена", callback_data=f"admin:price:{product.id}"),
