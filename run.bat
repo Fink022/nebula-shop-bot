@@ -61,6 +61,10 @@ if not exist "nebula.db" (
 )
 
 echo.
+echo Mini App уже работает рядом с ботом: http://127.0.0.1:8080
+echo Кнопка «Магазин» внутри Telegram появится после заполнения WEBAPP_URL.
+echo Как получить бесплатный https-адрес - см. README, раздел Mini App.
+echo.
 echo Бот запускается. Остановить: Ctrl+C или закрыть это окно.
 echo.
 ".venv\Scripts\python.exe" main.py
