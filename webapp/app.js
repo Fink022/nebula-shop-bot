@@ -124,7 +124,6 @@ async function api(path, options = {}) {
   return data;
 }
 
-
 function renderSkeletons() {
   $("productGrid").innerHTML = Array.from({ length: 6 })
     .map(
@@ -308,7 +307,6 @@ function applyState(data) {
   updateBadge();
 }
 
-
 async function refreshState() {
   const data = await api("/api/state");
   applyState(data);
@@ -408,7 +406,6 @@ async function applyPromo() {
   }
 }
 
-
 function openSheet(id) {
   clearTimeout(backdropTimer);
   $("backdrop").hidden = false;
@@ -494,7 +491,6 @@ async function pay(method) {
   }
 }
 
-
 function setTab(tab) {
   if (!["catalog", "cart", "profile"].includes(tab)) tab = "catalog";
   document.querySelectorAll(".tab").forEach((btn) => {
@@ -517,7 +513,6 @@ async function copyRef() {
     toast("Не удалось скопировать", true);
   }
 }
-
 
 function bindEvents() {
   document.querySelectorAll(".tab").forEach((btn) => {
