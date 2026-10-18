@@ -1,0 +1,172 @@
+# Nebula Shop — Telegram-магазин гаджетов с ИИ-консультантом
+
+Бот и мини-приложение (Telegram Web App) с общими корзиной, бонусами и заказами.
+Оплата звёздами, админка прямо в чате.
+
+## Возможности
+
+**Мини-приложение (Web App)**
+- Тёмная витрина: каталог, карточки и шторка с описанием
+- Корзина с промокодами и способами оплаты (Stars / бонусы)
+- Профиль: бонусный баланс, история заказов, партнёрская ссылка
+- Валидация Telegram `initData` (HMAC-подпись) на каждом запросе
+- Общее состояние с ботом: добавил в приложении — видно и в чате, и наоборот
+
+**Для покупателя (бот)**
+- Каталог с категориями, карточками товаров, фото и пагинацией
+- Корзина: изменение количества, промокоды, очистка
+- Оформление заказа и оплата через Telegram Stars (XTR)
+- Оплата бонусными баллами (кешбэк 3% с каждой покупки)
+- ИИ-консультант: подбирает товар по запросу словами
+- Отзывы с оценкой и комментарием после покупки
+- Партнёрская программа: бонусы за приглашённых друзей
+- Профиль с историей заказов и статистикой
+
+**Для админа**
+- Статистика: пользователи, заказы, выручка, средний чек, топ товаров
+- Заказы с деталями
+- Товары: добавление с фото, вкл/выкл, смена цены
+- Промокоды
+- Рассылка по всем пользователям
+
+## Стек
+
+- Python 3.11+ · [aiogram 3](https://docs.aiogram.dev/) (FSM, инлайн-клавиатуры, платежи)
+- aiohttp — API и статика Mini App в том же процессе
+- SQLAlchemy 2 (async) + SQLite (aiosqlite)
+- Фронтенд Mini App: чистый JS + CSS (без сборки и зависимостей)
+- FSM-сценарии, middleware сессии БД, фильтры доступа, HMAC-валидация initData
+
+## ИИ-консультант
+
+Работает в двух режимах:
+- **С API**: укажи `AI_API_KEY` в `.env` (подойдёт любой OpenAI-совместимый
+  сервис). Ответы генерирует LLM, каталог передаётся в промпте.
+- **Без ключа**: бот ищет товары по словам из запроса. Для демо этого хватает.
+
+## Структура
+
+```
+nebula-shop-bot/
+├── main.py                  # точка входа, сборка Dispatcher
+├── requirements.txt
+├── pyproject.toml           # настройки ruff
+├── .env.example
+├── LICENSE
+├── nebula/
+│   ├── config.py            # конфиг из .env
+│   ├── filters.py           # фильтры доступа (админ, приватный чат)
+│   ├── keyboards.py         # все inline-клавиатуры
+│   ├── utils.py             # хелперы (корзина, рендер экранов)
+│   ├── db/
+│   │   ├── engine.py        # async engine + сессии
+│   │   └── models.py        # User, Product, Order, Promo, Review...
+│   ├── middlewares/
+│   │   └── db.py            # сессия БД на каждый апдейт
+│   ├── services/
+│   │   ├── ai.py            # ИИ-консультант (LLM + офлайн-режим)
+│   │   └── orders.py        # создание, выдача и отмена заказов
+│   ├── handlers/
+│   │   ├── start.py         # /start, меню, реферальные ссылки
+│   │   ├── catalog.py       # каталог и карточки товаров
+│   │   ├── cart.py          # корзина и промокоды
+│   │   ├── checkout.py      # оформление и оплата (Stars / бонусы)
+│   │   ├── reviews.py       # отзывы
+│   │   ├── profile.py       # профиль, заказы, партнёрка
+│   │   ├── ai_consultant.py # диалог с ИИ
+│   │   └── admin.py         # админ-панель
+│   └── webapp/
+│       ├── server.py        # aiohttp-сервер Mini App
+│       ├── api.py           # JSON API (каталог, корзина, чекаут)
+│       └── auth.py          # HMAC-валидация Telegram initData
+├── webapp/                  # фронтенд Mini App
+│   ├── index.html
+│   ├── style.css
+│   └── app.js
+├── scripts/
+│   ├── seed.py              # демо-данные (4 категории, 6 товаров)
+│   ├── seed_activity.py     # демо-история заказов и отзывов для профиля
+│   ├── smoke.py             # быстрый смоук-тест
+│   ├── demo_screens.py      # отправка экранов бота в чат (для скриншотов)
+│   ├── render_assets.ps1    # генерация картинок (Windows, опционально)
+│   ├── shot.html            # рамка-мокап телефона для скриншотов Mini App
+│   ├── banner.html
+│   └── product.html
+├── docs/screenshots/        # скриншоты для README
+└── assets/                  # сгенерированные изображения
+```
+
+## Запуск
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python -m pip install -r requirements.txt
+
+Copy-Item .env.example .env
+# заполни BOT_TOKEN (от @BotFather) и ADMIN_IDS (узнать ID: @userinfobot)
+
+.\.venv\Scripts\python scripts\seed.py   # демо-данные
+.\.venv\Scripts\python main.py           # запуск бота
+```
+
+Для macOS/Linux — то же самое:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+python scripts/seed.py
+python main.py
+```
+
+Проверка без запуска: `.\.venv\Scripts\python scripts\smoke.py`
+
+По желанию — демо-история заказов и отзывов для профиля:
+`.\.venv\Scripts\python scripts\seed_activity.py <твой_telegram_id>`
+
+Миграций нет: при изменении моделей в `nebula/db/models.py` удали файлы
+`nebula.db*` (включая `-wal` и `-shm`) — схема пересоздастся при следующем запуске.
+
+## Mini App
+
+Веб-приложение поднимается вместе с ботом на `http://127.0.0.1:8080`
+(адрес и порт настраиваются в `.env`).
+
+- **В браузере (режим разработки):** включи `WEBAPP_DEV_MODE=1` в `.env`
+  и открой `http://127.0.0.1:8080/?dev=<твой_telegram_id>`
+- **Внутри Telegram** нужен публичный HTTPS-адрес. Быстрый способ:
+  1. Установи [cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/)
+  2. Запусти: `cloudflared tunnel --url http://127.0.0.1:8080`
+  3. Полученный `https://...trycloudflare.com` впиши в `WEBAPP_URL` в `.env`
+  4. Перезапусти бота — появится кнопка «Магазин» (меню-кнопка) и кнопка
+     «🛍 Открыть магазин» в главном меню
+
+Для продакшена: замени `MemoryStorage` на персистентное FSM-хранилище
+(Redis или SQLite) — состояния диалогов переживут перезапуск бота.
+
+## Демо-данные
+
+- Категории: Гаджеты, Аудио, Проекторы, Аксессуары
+- 6 товаров с карточками (`assets/products/`)
+- Промокоды: `NEBULA10` (−10%), `WELCOME5` (−5%)
+
+## Скриншоты
+
+Mini App:
+
+![Каталог](docs/screenshots/webapp/01-catalog.jpg)
+![Оплата](docs/screenshots/webapp/04-payment.jpg)
+
+Бот:
+
+![Главное меню](docs/screenshots/telegram/01-welcome.jpg)
+![Админ-панель](docs/screenshots/telegram/08-admin.jpg)
+
+Полный набор — в `docs/screenshots/`. Пересъёмка Mini App: запусти бота и
+открой `scripts/shot.html?src=<url приложения>` в headless-браузере;
+экраны бота — `scripts/demo_screens.py <screen> <chat_id>`.
+
+## Лицензия
+
+MIT — см. [LICENSE](LICENSE).

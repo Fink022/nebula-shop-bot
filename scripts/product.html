@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html,body{margin:0;padding:0;width:800px;height:800px;overflow:hidden}
+  .card{position:relative;width:800px;height:800px;overflow:hidden;font-family:"Segoe UI",system-ui,sans-serif;
+    background:
+      radial-gradient(640px 520px at 86% -8%, var(--g1a), transparent 62%),
+      radial-gradient(580px 480px at -6% 108%, var(--g2a), transparent 62%),
+      linear-gradient(150deg,#0a0d1f 0%,#131238 45%,#241a5e 100%);
+  }
+  .grid{position:absolute;inset:-2px;opacity:.4;
+    background-image:radial-gradient(rgba(255,255,255,.14) 1px,transparent 1.5px);
+    background-size:30px 30px;
+    -webkit-mask-image:linear-gradient(160deg,#000 15%,transparent 60%);
+    mask-image:linear-gradient(160deg,#000 15%,transparent 60%);
+  }
+  .brand{position:absolute;top:46px;left:54px;font-size:21px;font-weight:700;letter-spacing:7px;color:rgba(226,232,255,.55)}
+  .brand b{color:#fff}
+  .stock{position:absolute;top:42px;right:54px;font-size:15px;padding:10px 20px;border-radius:999px;font-weight:600;
+    color:#6ee7b7;border:1px solid rgba(52,211,153,.45);background:rgba(16,185,129,.10);letter-spacing:1px}
+  .tile{position:absolute;left:50%;top:70px;transform:translateX(-50%);
+    width:430px;height:430px;border-radius:80px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(165deg,rgba(255,255,255,.10),rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.13);
+    box-shadow:inset 0 2px 0 rgba(255,255,255,.14), 0 40px 90px rgba(3,2,20,.55), 0 0 110px var(--glow);
+  }
+  .tile svg{width:290px;height:290px;filter:drop-shadow(0 14px 34px rgba(0,0,0,.35))}
+  .name{position:absolute;left:0;right:0;top:566px;text-align:center;font-size:48px;font-weight:700;color:#fff;letter-spacing:-0.5px}
+  .cat{position:absolute;left:0;right:0;top:634px;text-align:center;font-size:18px;letter-spacing:6px;text-transform:uppercase;color:rgba(199,210,254,.62)}
+  .price{position:absolute;left:0;right:0;top:680px;text-align:center;font-size:58px;font-weight:800;letter-spacing:-1px;
+    background:linear-gradient(92deg,var(--c1),var(--c2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .line{position:absolute;left:50%;transform:translateX(-50%);top:762px;width:110px;height:4px;border-radius:3px;
+    background:linear-gradient(90deg,var(--c1),var(--c2));opacity:.85}
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="grid"></div>
+  <div class="brand">NEBULA<b> SHOP</b></div>
+  <div class="stock">● В наличии</div>
+  <div class="tile">
+    <svg id="icon" viewBox="0 0 24 24" fill="none" stroke="url(#pg)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"></svg>
+  </div>
+  <div class="name" id="name"></div>
+  <div class="cat" id="cat"></div>
+  <div class="price" id="price"></div>
+  <div class="line"></div>
+</div>
+<script>
+const ICONS = {
+  watch: '<rect x="7" y="5" width="10" height="14" rx="3.2"/><path d="M9 5V2.6h6V5M9 19v2.4h6V19"/><path d="M17.4 9.4H19v2.2h-1.6"/><path d="M9.8 8.8h4.4M9.8 11.6h4.4M9.8 14.4h2.6"/>',
+  buds: '<ellipse cx="9" cy="7.4" rx="1.9" ry="2.5"/><path d="M9 9.9v2.2"/><ellipse cx="15" cy="7.4" rx="1.9" ry="2.5"/><path d="M15 9.9v2.2"/><rect x="5.6" y="12.6" width="12.8" height="6.6" rx="3.2"/>',
+  projector: '<rect x="3.8" y="8" width="16.4" height="9.2" rx="3"/><circle cx="13.4" cy="12.6" r="2.7"/><circle cx="13.4" cy="12.6" r="0.9"/><path d="M7.2 8V6.4h3.2V8"/><path d="M7.4 17.2v1.6M16.6 17.2v1.6"/>',
+  speaker: '<rect x="6.6" y="3.6" width="10.8" height="16.8" rx="3.2"/><circle cx="12" cy="14.4" r="3.5"/><circle cx="12" cy="14.4" r="1.2"/><circle cx="12" cy="7.6" r="1.5"/>',
+  powerbank: '<rect x="7" y="4.4" width="10" height="15.6" rx="2.6"/><rect x="10.4" y="2.6" width="3.2" height="1.8" rx="0.7"/><path d="M13.4 8.4 10 13.2h3l-1.3 4.6 3.6-5.2h-3z"/>',
+  keyboard: '<rect x="2.8" y="7.6" width="18.4" height="9.4" rx="2.4"/><path d="M6.2 10.8h.01M9.4 10.8h.01M12.6 10.8h.01M15.8 10.8h.01M19 10.8h.01M6.6 13.9h10.8"/>',
+};
+
+const P = [
+  { name: "Nebula Watch S2", cat: "Гаджеты", price: "4 990 ₽", icon: "watch", c1: "#22d3ee", c2: "#6366f1" },
+  { name: "AirPods Nebula Pro", cat: "Аудио", price: "7 490 ₽", icon: "buds", c1: "#a78bfa", c2: "#ec4899" },
+  { name: "Nebula Beam Mini", cat: "Проекторы", price: "15 990 ₽", icon: "projector", c1: "#f472b6", c2: "#8b5cf6" },
+  { name: "Nebula Sound 360", cat: "Аудио", price: "3 990 ₽", icon: "speaker", c1: "#34d399", c2: "#22d3ee" },
+  { name: "Nebula Charge 20K", cat: "Аксессуары", price: "2 990 ₽", icon: "powerbank", c1: "#fbbf24", c2: "#f97316" },
+  { name: "Nebula Keys RGB", cat: "Аксессуары", price: "5 990 ₽", icon: "keyboard", c1: "#f87171", c2: "#a78bfa" },
+];
+
+function rgba(hex, alpha) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
+}
+
+const params = new URLSearchParams(location.search);
+const index = Math.max(0, Math.min(P.length - 1, parseInt(params.get("p") || "0", 10)));
+const p = P[index];
+
+document.documentElement.style.setProperty("--c1", p.c1);
+document.documentElement.style.setProperty("--c2", p.c2);
+document.documentElement.style.setProperty("--g1a", rgba(p.c1, 0.30));
+document.documentElement.style.setProperty("--g2a", rgba(p.c2, 0.26));
+document.documentElement.style.setProperty("--glow", rgba(p.c1, 0.24));
+
+document.getElementById("name").textContent = p.name;
+document.getElementById("cat").textContent = p.cat;
+document.getElementById("price").textContent = p.price;
+document.getElementById("icon").innerHTML =
+  '<defs><linearGradient id="pg" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">' +
+  `<stop stop-color="${p.c1}"/><stop offset="1" stop-color="${p.c2}"/>` +
+  "</linearGradient></defs>" + ICONS[p.icon];
+</script>
+</body>
+</html>
